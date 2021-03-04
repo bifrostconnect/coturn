@@ -1,0 +1,12 @@
+[Unit]
+Description=Coturn Monitor Service
+StartLimitIntervalSec=1
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/bin/bash /usr/bin/coturn_mon.sh
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
