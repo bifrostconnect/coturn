@@ -2993,6 +2993,11 @@ static void eventcb_bev(struct bufferevent *bev, short events, void *arg)
 								char msg[256];
 								snprintf(msg,sizeof(msg)-1,"%s socket buffer operation error (callback)",socket_type_name(s->st));
 								shutdown_client_connection(server, ss, 0, msg);
+								static int ev_error_cnt = 0;
+								if (++ev_error_cnt >= 3) {
+									TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "Maximum event error reached. Crashing turnserver so it can restart\n");
+									exit(-1);
+								}
 							 }
 						}
 					}
