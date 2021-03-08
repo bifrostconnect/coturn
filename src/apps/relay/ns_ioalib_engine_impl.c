@@ -2994,9 +2994,15 @@ static void eventcb_bev(struct bufferevent *bev, short events, void *arg)
 								snprintf(msg,sizeof(msg)-1,"%s socket buffer operation error (callback)",socket_type_name(s->st));
 								shutdown_client_connection(server, ss, 0, msg);
 								static int ev_error_cnt = 0;
-								if (++ev_error_cnt >= 3) {
-									TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "Maximum event error reached. Crashing turnserver so it can restart\n");
-									exit(-1);
+								if (strlen((char*)ss->username) > 0) {
+									ev_error_cnt++;
+									TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "Event error count: %d\n", ev_error_cnt);
+									if (ev_error_cnt >= 3) {
+										TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "Maximum event error reached. Crashing turnserver so it can restart\n");
+										exit(-1);
+									}
+								} else {
+									TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "No valid user name\n");
 								}
 							 }
 						}
