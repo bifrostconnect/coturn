@@ -2897,8 +2897,10 @@ static void eventcb_bev(struct bufferevent *bev, short events, void *arg)
 {
 	UNUSED_ARG(bev);
 
+	static int ev_error_cnt = 0;
 	if (events & BEV_EVENT_CONNECTED) {
 		// Connect okay
+		ev_error_cnt = 0;
 	} else if (events & (BEV_EVENT_ERROR | BEV_EVENT_EOF)) {
 		if (arg) {
 			ioa_socket_handle s = (ioa_socket_handle) arg;
@@ -2993,11 +2995,10 @@ static void eventcb_bev(struct bufferevent *bev, short events, void *arg)
 								char msg[256];
 								snprintf(msg,sizeof(msg)-1,"%s socket buffer operation error (callback)",socket_type_name(s->st));
 								shutdown_client_connection(server, ss, 0, msg);
-								static int ev_error_cnt = 0;
 								if (strlen((char*)ss->username) > 0) {
 									ev_error_cnt++;
 									TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "Event error count: %d\n", ev_error_cnt);
-									if (ev_error_cnt >= 3) {
+									if (ev_error_cnt >= 10) {
 										TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "Maximum event error reached. Crashing turnserver so it can restart\n");
 										exit(-1);
 									}
